@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>問診表 Type B — Charcoal Mauve</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #2a2830;
+    --bg2: #322f3a;
+    --card: #3a3744;
+    --card2: #403d4e;
+    --mauve: #c4a4b8;
+    --mauve-light: #e8d8e2;
+    --mauve-dim: #8a7080;
+    --text: #ede8f0;
+    --text-mid: #b0a8bc;
+    --text-dim: #7a7288;
+    --rule: #4a4658;
+    --danger: #c47a8a;
+    --danger-dim: #5a3040;
+    --gold: #c8b090;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: 'Noto Sans JP', sans-serif; color: var(--text); font-size: 15px; line-height: 1.75; min-height: 100vh; }
+
+  /* ── ヘッダー ── */
+  .page-header {
+    background: linear-gradient(135deg, #1e1c26 0%, #2d2838 60%, #352d3a 100%);
+    padding: 32px 44px 28px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--rule);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .header-ornament {
+    width: 3px;
+    height: 32px;
+    background: linear-gradient(to bottom, var(--mauve), transparent);
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-bottom: -4px;
+  }
+  .page-header h1 {
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: 0.22em;
+    color: var(--mauve-light);
+  }
+  .page-header .sub { font-size: 11px; color: var(--text-dim); letter-spacing: 0.12em; }
+  .header-date { margin-left: auto; font-size: 12px; color: var(--text-dim); letter-spacing: 0.08em; }
+  .type-badge { font-size: 10px; background: rgba(196,164,184,0.15); color: var(--mauve); border: 1px solid rgba(196,164,184,0.3); padding: 2px 10px; border-radius: 20px; letter-spacing: 0.1em; }
+
+  /* ── レイアウト ── */
+  .container { max-width: 860px; margin: 0 auto; padding: 36px 24px 90px; }
+
+  /* ── セクション ── */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    transition: box-shadow 0.2s;
+  }
+  .section:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+  .section-header {
+    background: linear-gradient(90deg, var(--card2) 0%, rgba(196,164,184,0.08) 100%);
+    padding: 12px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .section-num {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--mauve);
+    font-family: 'Shippori Mincho', serif;
+    opacity: 0.7;
+  }
+  .section-title { font-size: 13px; font-weight: 400; letter-spacing: 0.18em; color: var(--mauve-light); }
+  .section-body { padding: 22px; }
+
+  /* ── フォーム部品 ── */
+  .field-row {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    align-items: start;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(74,70,88,0.6);
+    gap: 14px;
+  }
+  .field-row:last-child { border-bottom: none; }
+  label.field-label { font-size: 12px; color: var(--text-mid); letter-spacing: 0.08em; padding-top: 5px; }
+
+  input[type="text"], input[type="date"], textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    padding: 4px 4px;
+    outline: none;
+    transition: border-color 0.2s;
+    caret-color: var(--mauve);
+  }
+  input[type="text"]:focus, input[type="date"]:focus, textarea:focus {
+    border-color: var(--mauve);
+  }
+  input[type="text"]::placeholder, textarea::placeholder { color: var(--text-dim); }
+  textarea { resize: vertical; min-height: 60px; }
+
+  /* チェックボックス */
+  .check-group { display: flex; flex-wrap: wrap; gap: 10px 16px; padding-top: 4px; }
+  .check-item { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; color: var(--text-mid); transition: color 0.15s; }
+  .check-item:hover { color: var(--text); }
+  .check-item input[type="checkbox"] { appearance: none; width: 16px; height: 16px; border: 1px solid var(--mauve-dim); border-radius: 3px; background: transparent; cursor: pointer; position: relative; flex-shrink: 0; transition: all 0.15s; }
+  .check-item input[type="checkbox"]:checked { background: var(--mauve); border-color: var(--mauve); }
+  .check-item input[type="checkbox"]:checked::after { content: '✓'; position: absolute; top: -1px; left: 2px; font-size: 11px; color: var(--bg); font-weight: bold; }
+
+  /* ラジオ */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 10px 20px; padding-top: 4px; }
+  .radio-item { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; color: var(--text-mid); transition: color 0.15s; }
+  .radio-item:hover { color: var(--text); }
+  .radio-item input[type="radio"] { appearance: none; width: 16px; height: 16px; border: 1px solid var(--mauve-dim); border-radius: 50%; background: transparent; cursor: pointer; position: relative; flex-shrink: 0; transition: all 0.15s; }
+  .radio-item input[type="radio"]:checked { border-color: var(--mauve); }
+  .radio-item input[type="radio"]:checked::after { content: ''; position: absolute; top: 3px; left: 3px; width: 8px; height: 8px; border-radius: 50%; background: var(--mauve); }
+
+  /* スライダー */
+  .damage-slider-wrap { padding-top: 10px; }
+  .damage-slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; }
+  input[type="range"] { width: 100%; appearance: none; height: 4px; background: var(--rule); border-radius: 2px; outline: none; cursor: pointer; }
+  input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--mauve); cursor: pointer; border: 2px solid var(--card); box-shadow: 0 0 8px rgba(196,164,184,0.4); }
+  .damage-val { text-align: center; font-size: 28px; font-family: 'Shippori Mincho', serif; color: var(--mauve); margin-top: 8px; letter-spacing: 0.05em; }
+
+  .history-entry { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; margin-bottom: 8px; font-size: 13px; }
+  .sub-label { font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+  /* 警告バッジ */
+  .alert-badge { display: inline-block; background: rgba(196,122,138,0.2); color: var(--danger); border: 1px solid rgba(196,122,138,0.4); font-size: 10px; padding: 1px 8px; border-radius: 20px; letter-spacing: 0.08em; margin-left: 8px; vertical-align: middle; }
+
+  /* 同意書 */
+  .consent-box {
+    border: 1px solid rgba(196,122,138,0.4);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 20px rgba(196,122,138,0.08);
+  }
+  .consent-header {
+    background: linear-gradient(90deg, var(--danger-dim), rgba(90,48,64,0.5));
+    color: var(--mauve-light);
+    padding: 12px 22px;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    font-family: 'Shippori Mincho', serif;
+    font-weight: 400;
+    border-bottom: 1px solid rgba(196,122,138,0.3);
+  }
+  .consent-body { padding: 22px; background: var(--card); }
+  .risk-list { list-style: none; margin: 12px 0; }
+  .risk-list li { font-size: 13px; color: var(--text-mid); padding: 5px 0 5px 18px; position: relative; border-bottom: 1px solid rgba(74,70,88,0.4); }
+  .risk-list li:last-child { border-bottom: none; }
+  .risk-list li::before { content: '—'; position: absolute; left: 0; color: var(--mauve-dim); font-size: 10px; top: 8px; }
+  .consent-policy { background: rgba(196,164,184,0.06); border-left: 2px solid var(--mauve-dim); border-radius: 0 4px 4px 0; padding: 14px 18px; font-size: 13px; color: var(--text-mid); line-height: 1.9; margin: 18px 0; }
+  .consent-check-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px 0; border-top: 1px solid var(--rule); }
+  .consent-check-row input[type="checkbox"] { appearance: none; width: 20px; height: 20px; min-width: 20px; border: 1px solid var(--danger); border-radius: 4px; background: transparent; cursor: pointer; position: relative; margin-top: 2px; transition: all 0.15s; }
+  .consent-check-row input[type="checkbox"]:checked { background: var(--danger); }
+  .consent-check-row input[type="checkbox"]:checked::after { content: '✓'; position: absolute; top: 1px; left: 4px; font-size: 13px; color: #fff; }
+  .consent-check-row label { font-size: 13px; line-height: 1.9; cursor: pointer; color: var(--text-mid); }
+  .sign-area { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sign-block label { font-size: 11px; color: var(--text-dim); letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
+  .sign-line { border-bottom: 1px solid var(--mauve-dim); height: 38px; }
+  .sign-note { font-size: 10px; color: var(--text-dim); margin-top: 5px; }
+
+  /* 美容師確認欄 */
+  .stylist-section { background: var(--card); border: 1px solid rgba(196,164,184,0.2); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+  .stylist-header { background: linear-gradient(90deg, rgba(196,164,184,0.15), transparent); padding: 12px 22px; font-size: 13px; letter-spacing: 0.15em; color: var(--mauve); border-bottom: 1px solid var(--rule); }
+  .stylist-body { padding: 22px; }
+  .damage-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .damage-table th { text-align: left; font-weight: 400; color: var(--text-dim); font-size: 11px; letter-spacing: 0.08em; padding: 8px 10px; border-bottom: 1px solid var(--rule); }
+  .damage-table td { padding: 10px; border-bottom: 1px solid rgba(74,70,88,0.5); vertical-align: middle; }
+  .damage-table td:first-child { font-size: 12px; color: var(--text-mid); width: 90px; }
+  .lv-radio { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lv-btn { display: inline-block; width: 36px; height: 30px; line-height: 30px; text-align: center; border: 1px solid var(--rule); border-radius: 4px; font-size: 11px; cursor: pointer; color: var(--text-dim); transition: all 0.15s; user-select: none; }
+  .lv-btn:hover { border-color: var(--mauve-dim); color: var(--mauve); }
+  .lv-btn.selected { background: rgba(196,164,184,0.2); border-color: var(--mauve); color: var(--mauve); }
+
+  /* ボタン */
+  .actions { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(30,28,38,0.96); backdrop-filter: blur(10px); padding: 14px 28px; display: flex; justify-content: flex-end; gap: 12px; z-index: 200; border-top: 1px solid var(--rule); }
+  .btn { padding: 10px 28px; border: none; cursor: pointer; font-family: 'Noto Sans JP', sans-serif; font-size: 13px; letter-spacing: 0.1em; border-radius: 6px; transition: all 0.2s; }
+  .btn-clear { background: transparent; color: var(--text-dim); border: 1px solid var(--rule); }
+  .btn-clear:hover { border-color: var(--text-mid); color: var(--text-mid); }
+  .btn-pdf { background: linear-gradient(135deg, var(--mauve-dim), var(--mauve)); color: var(--bg); font-weight: 500; }
+  .btn-pdf:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(196,164,184,0.3); }
+
+  @media print {
+    body { background: #fff; color: #1a1a1a; font-size: 12px; }
+    .page-header { position: static; background: #f0f0f0 !important; color: #1a1a1a; }
+    .page-header h1, .page-header .sub, .header-date { color: #1a1a1a !important; }
+    .section, .consent-box, .stylist-section { background: #fff !important; border-color: #ccc !important; break-inside: avoid; box-shadow: none !important; }
+    .section-header { background: #f5f5f5 !important; }
+    .section-title, .section-num, .field-label, .check-item, .radio-item { color: #333 !important; }
+    input[type="text"], input[type="date"], textarea { color: #1a1a1a; border-color: #ccc; }
+    .consent-header { background: #eee !important; color: #1a1a1a !important; }
+    .consent-body { background: #fff !important; }
+    .actions { display: none; }
+    .container { padding: 0; max-width: 100%; }
+    .damage-val { color: #666 !important; }
+    .lv-btn.selected { background: #ddd !important; border-color: #666 !important; color: #333 !important; }
+  }
+  @media (max-width: 600px) { .field-row { grid-template-columns: 1fr; gap: 4px; } .sign-area { grid-template-columns: 1fr; } .page-header { padding: 16px 20px; } .container { padding: 16px 12px 90px; } }
+</style>
+  <!-- パスワード保護 -->
+  <script>
+  (function() {
+    var PASS = "imu1120box";
+    var KEY = "hcs_auth";
+    if (sessionStorage.getItem(KEY) === "1") return;
+    var style = document.createElement("style");
+    style.id = "pw-hide";
+    style.textContent = "body > *:not(#pw-overlay) { visibility: hidden !important; }";
+    document.head.appendChild(style);
+    function showOverlay() {
+      var overlay = document.createElement("div");
+      overlay.id = "pw-overlay";
+      overlay.setAttribute("style",
+        "position:fixed;inset:0;z-index:9999;background:#1a1a1a;" +
+        "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;" +
+        "font-family:'Noto Sans JP',sans-serif;visibility:visible !important;");
+      overlay.innerHTML =
+        "<div style=\"font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.3em;color:#5a9a8a;margin-bottom:8px\">HAIR CONSULTATION SYSTEM</div>" +
+        "<div style=\"font-family:'Shippori Mincho',serif;font-size:20px;letter-spacing:0.2em;color:#e8e4dc;margin-bottom:4px\">パスワードを入力してください</div>" +
+        "<input id=\"pw-input\" type=\"password\" placeholder=\"password\" style=\"background:#2a2a2a;border:1px solid #444;border-radius:4px;color:#e8e4dc;font-size:16px;padding:12px 20px;width:260px;outline:none;text-align:center;font-family:'DM Mono',monospace;letter-spacing:0.15em;\">" +
+        "<button id=\"pw-btn\" style=\"background:linear-gradient(135deg,#3a6a5a,#5a9a8a);color:#fff;border:none;border-radius:4px;padding:11px 36px;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:0.1em;font-weight:500;\">入　室</button>" +
+        "<div id=\"pw-err\" style=\"color:#c05858;font-size:12px;height:18px;font-family:'DM Mono',monospace;\"></div>";
+      document.body.appendChild(overlay);
+      function tryLogin() {
+        if (document.getElementById("pw-input").value === PASS) {
+          sessionStorage.setItem(KEY, "1");
+          document.getElementById("pw-overlay").remove();
+          document.getElementById("pw-hide").remove();
+        } else {
+          document.getElementById("pw-err").textContent = "パスワードが違います";
+          document.getElementById("pw-input").value = "";
+          document.getElementById("pw-input").focus();
+          setTimeout(function(){ document.getElementById("pw-err").textContent = ""; }, 2500);
+        }
+      }
+      document.getElementById("pw-btn").addEventListener("click", tryLogin);
+      document.getElementById("pw-input").addEventListener("keydown", function(e){ if(e.key==="Enter") tryLogin(); });
+      setTimeout(function(){ document.getElementById("pw-input").focus(); }, 200);
+    }
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", showOverlay);
+    } else {
+      showOverlay();
+    }
+  })();
+  </script>
+</head>
+<body>
+<header class="page-header">
+  <div class="header-ornament"></div>
+  <h1>問　診　表</h1>
+  <span class="sub">／　施術に関するご説明および確認書</span>
+  <span class="type-badge">TYPE B — Charcoal Mauve</span>
+  <span class="header-date" id="headerDate"></span>
+</header>
+
+<div class="container">
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">00</span><span class="section-title">ご 来 店 情 報</span></div>
+    <div class="section-body">
+      <div class="field-row"><label class="field-label">来店日</label><input type="date" id="visitDate"></div>
+      <div class="field-row"><label class="field-label">お客様氏名</label><input type="text" placeholder="　"></div>
+      <div class="field-row"><label class="field-label">担当美容師</label><input type="text" placeholder="　"></div>
+      <div class="field-row">
+        <label class="field-label">来店区分</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="visit_type"> 初回</label>
+          <label class="radio-item"><input type="radio" name="visit_type"> リピート</label>
+        </div>
+      </div>
+      <div class="field-row"><label class="field-label">前回来店からの期間</label><input type="text" placeholder="　　ヶ月ほど前"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">ご 希 望 の メ ニ ュ ー</span></div>
+    <div class="section-body">
+      <div class="field-row">
+        <label class="field-label">メニュー</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox"> シャンプー</label>
+          <label class="check-item"><input type="checkbox"> カット</label>
+          <label class="check-item"><input type="checkbox"> トリートメント</label>
+          <label class="check-item"><input type="checkbox"> ヘアカラー</label>
+          <label class="check-item"><input type="checkbox"> パーマ</label>
+          <label class="check-item"><input type="checkbox"> 縮毛矯正</label>
+          <label class="check-item"><input type="checkbox"> その他</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">ご要望</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox"> ボリュームを抑えたい</label>
+          <label class="check-item"><input type="checkbox"> 扱いやすさ</label>
+          <label class="check-item"><input type="checkbox"> ツヤが欲しい</label>
+          <label class="check-item"><input type="checkbox"> ダメージを減らしたい</label>
+          <label class="check-item"><input type="checkbox"> ホームケア指導希望</label>
+        </div>
+      </div>
+      <div class="field-row"><label class="field-label">その他ご希望</label><input type="text" placeholder="　"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">当 日 の 健 康 状 態 <span class="alert-badge">重 要</span></span></div>
+    <div class="section-body">
+      <div class="field-row">
+        <label class="field-label">当日の体調</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="health"> 良好</label>
+          <label class="radio-item"><input type="radio" name="health"> やや不調</label>
+          <label class="radio-item"><input type="radio" name="health"> 体調不良</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">妊娠中 / 授乳中</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="pregnant"> なし</label>
+          <label class="radio-item"><input type="radio" name="pregnant"> 妊娠中</label>
+          <label class="radio-item"><input type="radio" name="pregnant"> 授乳中</label>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:10px">※ 妊娠中・授乳中の場合、薬剤の使用を制限させていただく場合があります。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">毛 髪 の 履 歴 確 認</span></div>
+    <div class="section-body">
+      <div class="field-row">
+        <label class="field-label">前回施術の店舗</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="prev_salon"> 当店</label>
+          <label class="radio-item"><input type="radio" name="prev_salon"> 他店</label>
+          <label class="radio-item"><input type="radio" name="prev_salon"> 初来店</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">ヘアカラー</label>
+        <div>
+          <div class="history-entry">
+            <input type="text" placeholder="直近　　年　　月頃">
+            <span class="sub-label">累計</span>
+            <input type="text" style="width:60px" placeholder="　　回">
+          </div>
+          <div class="check-group" style="margin-top:4px">
+            <label class="check-item"><input type="checkbox"> ホームカラー歴あり</label>
+            <span class="sub-label" style="padding-top:4px">頻度</span>
+            <input type="text" style="width:80px" placeholder="　週毎">
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">ブリーチ</label>
+        <div class="history-entry">
+          <input type="text" placeholder="直近　　年　　月頃">
+          <span class="sub-label">累計</span>
+          <input type="text" style="width:60px" placeholder="　　回">
+        </div>
+      </div>
+      <div class="field-row"><label class="field-label">縮毛矯正 / ストレート</label><input type="text" placeholder="直近　　年　　月頃"></div>
+      <div class="field-row"><label class="field-label">パーマ</label><input type="text" placeholder="直近　　年　　月頃"></div>
+      <div class="field-row">
+        <label class="field-label">過去のビビリ・チリつき経験</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="bibiri"> なし</label>
+          <label class="radio-item"><input type="radio" name="bibiri"> あり（施術後に発生）</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">薬剤アレルギー</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="allergy"> なし</label>
+          <label class="radio-item"><input type="radio" name="allergy"> あり</label>
+          <label class="check-item" style="margin-left:12px"><input type="checkbox"> パッチテスト希望</label>
+        </div>
+      </div>
+      <div class="field-row"><label class="field-label">頭皮・皮膚トラブル</label><input type="text" placeholder="（ある場合は記入）"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">デ イ リ ー ケ ア の 確 認</span></div>
+    <div class="section-body">
+      <div class="field-row">
+        <label class="field-label">シャンプー</label>
+        <div>
+          <input type="text" placeholder="商品名">
+          <div class="radio-group" style="margin-top:10px">
+            <span style="font-size:12px;color:var(--text-dim)">頻度：</span>
+            <label class="radio-item"><input type="radio" name="shampoo_freq"> 毎日</label>
+            <label class="radio-item"><input type="radio" name="shampoo_freq"> 一日おき</label>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">アウトバストリートメント</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox"> オイル</label>
+          <label class="check-item"><input type="checkbox"> ミルク</label>
+          <label class="check-item"><input type="checkbox"> 使用なし</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">スタイリング剤</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox"> スプレー</label>
+          <label class="check-item"><input type="checkbox"> ワックス</label>
+          <label class="check-item"><input type="checkbox"> バーム</label>
+          <label class="check-item"><input type="checkbox"> ムース</label>
+          <label class="check-item"><input type="checkbox"> その他</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">アイロン使用</label>
+        <div>
+          <div class="check-group"><label class="check-item"><input type="checkbox"> 使用あり</label></div>
+          <div class="radio-group" style="margin-top:10px">
+            <span style="font-size:12px;color:var(--text-dim)">温度設定：</span>
+            <label class="radio-item"><input type="radio" name="iron_temp"> 140℃</label>
+            <label class="radio-item"><input type="radio" name="iron_temp"> 160℃</label>
+            <label class="radio-item"><input type="radio" name="iron_temp"> 180℃</label>
+            <label class="radio-item"><input type="radio" name="iron_temp"> その他</label>
+          </div>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">その他ダメージ要因</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox"> プール</label>
+          <label class="check-item"><input type="checkbox"> 紫外線</label>
+          <label class="check-item"><input type="checkbox"> 温泉</label>
+          <label class="check-item"><input type="checkbox"> 海水</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">ご 自 身 で 感 じ る ダ メ ー ジ レ ベ ル</span></div>
+    <div class="section-body">
+      <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px">感覚で結構です。スライダーを動かしてください。</p>
+      <div class="damage-slider-wrap">
+        <div class="damage-slider-labels"><span>1　傷んでいない</span><span>傷んでいる　10</span></div>
+        <input type="range" min="1" max="10" value="5" id="selfDamage" oninput="document.getElementById('selfDamageVal').textContent=this.value">
+        <div class="damage-val" id="selfDamageVal">5</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">地 肌 の 処 置 確 認</span></div>
+    <div class="section-body">
+      <div class="field-row">
+        <label class="field-label">オイルスプレー（保護剤）</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="oil_prot"> 希望する</label>
+          <label class="radio-item"><input type="radio" name="oil_prot"> 希望しない</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">ゼロテク塗布</label>
+        <div class="radio-group">
+          <label class="radio-item"><input type="radio" name="zero_tek"> 希望する</label>
+          <label class="radio-item"><input type="radio" name="zero_tek"> 希望しない</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 同意確認書 -->
+  <div class="consent-box">
+    <div class="consent-header">施 術 に 関 す る ご 説 明 お よ び 確 認 書　（本書の期限は1ヵ年とする）</div>
+    <div class="consent-body">
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:18px;line-height:1.9">現在の毛髪の状況では、薬剤等での影響を受ける可能性があります。現在の毛髪状態に対して診断を行った結果、薬剤を使用する施術に一定のリスクが伴う可能性があることをご説明いたします。</p>
+      <p style="font-size:12px;letter-spacing:0.08em;color:var(--mauve);margin-bottom:10px">■ 現在の毛髪状態</p>
+      <div class="check-group" style="margin-bottom:18px">
+        <label class="check-item"><input type="checkbox"> ブリーチ履歴あり</label>
+        <label class="check-item"><input type="checkbox"> 過去のパーマ・縮毛矯正履歴あり</label>
+        <label class="check-item"><input type="checkbox"> ダメージ進行毛（弾力低下・乾燥・チリつき等）</label>
+        <label class="check-item"><input type="checkbox"> ヘアカラー履歴あり</label>
+        <label class="check-item"><input type="checkbox"> 薬品アレルギー反応の履歴あり</label>
+      </div>
+      <p style="font-size:12px;letter-spacing:0.08em;color:var(--mauve);margin-bottom:10px">■ 想定されるリスク</p>
+      <ul class="risk-list">
+        <li>ダメージの進行</li>
+        <li>断毛・切れ毛の発生</li>
+        <li>仕上がりが理想通りにならない可能性</li>
+        <li>施術途中で工程変更または中止となる可能性</li>
+        <li>施術後数日〜数週間以内の断毛進行</li>
+        <li>施術中および施術後に薬剤のアレルギー反応による皮膚への感作反応</li>
+      </ul>
+      <p style="font-size:12px;color:var(--text-dim);margin:10px 0 18px;padding-left:16px">※ 施術後にアレルギー反応が起こり皮膚科に罹った場合、初診料の保証をいたします（診断書・領収書のご提出をお願いいたします）。</p>
+      <div class="consent-policy">当店では、お客様の毛髪と頭皮への負担を最小限に抑えることを最優先とし、必要に応じて薬剤調整・工程変更を行う場合があります。また、安全面を考慮し、当日施術を見送る判断をさせていただく場合があることも、あらかじめご了承ください。</div>
+      <div class="consent-check-row">
+        <input type="checkbox" id="consentCheck">
+        <label for="consentCheck">私は、上記説明を受け内容を理解し、現在の毛髪状態に伴うリスクを了承した上で、担当美容師の判断に同意し施術を希望します。</label>
+      </div>
+      <div class="sign-area">
+        <div class="sign-block">
+          <label>お客様氏名（自署）</label>
+          <div class="sign-line"></div>
+          <p class="sign-note">※ 後日、手書き自署にて取得予定</p>
+        </div>
+        <div class="sign-block">
+          <label>生年月日</label>
+          <input type="text" placeholder="　　　年　　月　　日">
+          <label style="margin-top:14px">署名日</label>
+          <input type="date" id="signDate">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 美容師確認欄 -->
+  <div class="stylist-section">
+    <div class="stylist-header">美 容 師 確 認 欄（シャンプー後に毛髪診断）</div>
+    <div class="stylist-body">
+      <table class="damage-table">
+        <thead><tr><th>部　位</th><th>ダメージレベル（Lv0〜5）</th></tr></thead>
+        <tbody id="damageTableBody"></tbody>
+      </table>
+      <div class="field-row" style="margin-top:16px">
+        <label class="field-label">頭皮状態</label>
+        <div class="check-group">
+          <label class="check-item"><input type="checkbox"> 乾燥</label>
+          <label class="check-item"><input type="checkbox"> 脂性</label>
+          <label class="check-item"><input type="checkbox"> 赤み</label>
+          <label class="check-item"><input type="checkbox"> フケ</label>
+          <label class="check-item"><input type="checkbox"> 敏感</label>
+          <label class="check-item"><input type="checkbox"> 炎症</label>
+          <label class="check-item"><input type="checkbox"> 異常なし</label>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">備考・施術メモ</label>
+        <textarea placeholder="薬剤設定・工程メモ等"></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="actions">
+  <button class="btn btn-clear" onclick="clearAll()">クリア</button>
+  <button class="btn btn-pdf" onclick="window.print()">📄　PDF 出力 / 印刷</button>
+</div>
+
+<script>
+  const today = new Date();
+  const fmt = d => `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+  document.getElementById('headerDate').textContent = fmt(today);
+  document.getElementById('visitDate').valueAsDate = today;
+  document.getElementById('signDate').valueAsDate = today;
+  const parts = ['根元', '中間部', '毛先', 'ハイライト部', 'バージン部'];
+  const lvLabels = ['Lv0', 'Lv1', 'Lv2', 'Lv3', 'Lv4', 'Lv5'];
+  const tbody = document.getElementById('damageTableBody');
+  parts.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${p}</td><td><div class="lv-radio">${lvLabels.map((lv,i)=>`<span class="lv-btn" onclick="selectLv(this)">${lv}</span>`).join('')}</div></td>`;
+    tbody.appendChild(tr);
+  });
+  function selectLv(el) {
+    el.closest('tr').querySelectorAll('.lv-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function clearAll() {
+    if (!confirm('入力内容をすべてクリアしますか？')) return;
+    document.querySelectorAll('input[type="text"], textarea').forEach(el => el.value = '');
+    document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(el => el.checked = false);
+    document.getElementById('selfDamage').value = 5;
+    document.getElementById('selfDamageVal').textContent = '5';
+    document.querySelectorAll('.lv-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('visitDate').valueAsDate = today;
+    document.getElementById('signDate').valueAsDate = today;
+  }
+</script>
+</body>
+</html>
